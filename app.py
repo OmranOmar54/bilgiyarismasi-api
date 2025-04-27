@@ -13,7 +13,7 @@ try:
 
     # Dosyanın varlığını kontrol et (isteğe bağlı ama iyi bir pratik)
     if not os.path.exists(secret_file_path):
-        print(f"HATA: Secret dosyası bulunamadı: {secret_file_path}")
+        print(f"HATA: Secret dosyasi bulunamad: {secret_file_path}")
         exit()
 
     # Secret File içeriğini (JSON string) oku
@@ -32,21 +32,21 @@ try:
     else:
         # Alternatif: Zaten başlatıldıysa mevcut uygulamayı al
         # firebase_admin.get_app()
-        print("Firebase zaten başlatılmış.")
+        print("Firebase zaten başlatilmiş.")
 
 
     # Firestore istemcisini al
     db = firestore.client()
-    print("Firebase başarıyla bağlandı.")
+    print("Firebase başariyla bağlandi.")
 
 # except FileNotFoundError: # Daha spesifik hata yakalama
 #     print(f"HATA: Secret dosyası bulunamadı: {secret_file_path}")
 #     exit()
 except json.JSONDecodeError:
-    print(f"HATA: Secret dosyasının içeriği geçerli bir JSON değil: {secret_file_path}")
+    print(f"HATA: Secret dosyasinin içeriği geçerli bir JSON değil: {secret_file_path}")
     exit()
 except Exception as e:
-    print(f"Firebase başlatılırken bir hata oluştu: {e}")
+    print(f"Firebase başlatilirken bir hata oluştu: {e}")
     exit() # Başka bir hata olursa durdur
 
 # --- Flask Web Sunucusu ---
@@ -57,14 +57,14 @@ CORS(app)
 @app.route('/')
 def home():
     # API'nin çalıştığını kontrol etmek için basit bir ana sayfa
-    return "Unity Liderlik Tablosu API'si çalışıyor!"
+    return "Unity Liderlik Tablosu API'si çalişiyor!"
 
 
 @app.route('/add_score', methods=['POST'])
 def add_score():
     """
-    Unity'den gelen kullanıcı adı, IP ve skoru Firestore'a ekler.
-    Beklenen JSON formatı: {"username": "oyuncu_adi", "ip": "192.168.1.1", "score": 100}
+    Unity'den gelen kullanici adı, IP ve skoru Firestore'a ekler.
+    Beklenen JSON formati: {"username": "oyuncu_adi", "ip": "192.168.1.1", "score": 100}
     """
     try:
         # Gelen isteğin JSON formatında olduğundan emin ol
@@ -81,7 +81,7 @@ def add_score():
         if not username or score is None:  # IP zorunlu olmayabilir, ama kullanıcı adı ve skor olmalı
             return jsonify({
                 "error":
-                "Eksik veri: 'username' ve 'score' alanları gereklidir."
+                "Eksik veri: 'username' ve 'score' alanlari gereklidir."
             }), 400
 
         # Firestore'a eklenecek veri
@@ -107,24 +107,24 @@ def add_score():
         # merge=True ile sadece belirtilen alanları güncelleyebiliriz ama burada tam kayıt yapıyoruz.
         doc_ref.set(user_data)
 
-        print(f"Kayıt eklendi/güncellendi: {user_data}")
+        print(f"Kayit eklendi/güncellendi: {user_data}")
         return jsonify({
             "success":
             True,
             "message":
-            f"'{username}' için skor başarıyla eklendi/güncellendi."
+            f"'{username}' için skor başariyla eklendi/güncellendi."
         }), 201
 
     except Exception as e:
         print(f"Skor eklenirken hata: {e}")
-        return jsonify({"error": "Sunucu hatası", "details": str(e)}), 500
+        return jsonify({"error": "Sunucu hatasi", "details": str(e)}), 500
 
 
 @app.route('/get_leaderboard', methods=['GET'])
 def get_leaderboard():
     """
-    Firestore'daki 'leaderboard' koleksiyonundan skorları çeker,
-    puana göre büyükten küçüğe sıralar ve ilk 10'u JSON olarak döndürür.
+    Firestore'daki 'leaderboard' koleksiyonundan skorlari çeker,
+    puana göre büyükten küçüğe siralar ve ilk 10'u JSON olarak döndürür.
     """
     try:
         leaderboard_ref = db.collection('leaderboard')
@@ -159,8 +159,8 @@ def get_leaderboard():
         return jsonify(leaderboard_data), 200
 
     except Exception as e:
-        print(f"Liderlik tablosu alınırken hata: {e}")
-        return jsonify({"error": "Sunucu hatası", "details": str(e)}), 500
+        print(f"Liderlik tablosu alinirken hata: {e}")
+        return jsonify({"error": "Sunucu hatasi", "details": str(e)}), 500
         
 
 @app.route('/check_username', methods=['POST'])
@@ -169,16 +169,16 @@ def check_username():
         data = request.get_json()
         username = data.get('username')
         if not username:
-            return jsonify({'success': False, 'message': 'Kullanıcı adı boş olamaz!'}), 400
+            return jsonify({'success': False, 'message': 'Kullanici adi boş olamaz!'}), 400
 
         leaderboard_ref = db.collection('leaderboard').document(username)
         doc = leaderboard_ref.get()
         if doc.exists:
-            return jsonify({'success': True, 'message': 'Kullanıcı Bulundu!', 'data':doc.to_dict()}), 200
+            return jsonify({'success': True, 'message': 'Kullanici Bulundu!', 'data':doc.to_dict()}), 200
         else:
-            return jsonify({'success': False, 'message': 'Kullanıcı Bulunamadı!'}), 404
+            return jsonify({'success': False, 'message': 'Kullanici Bulunamadı!'}), 404
    
     except Exception as e:
-        print(f"Kullanıcı adı sorgulanırken hata: {e}")
-        return jsonify({"error": "Sunucu hatası", "details": str(e)}), 500
+        print(f"Kullanici adi sorgulanirken hata: {e}")
+        return jsonify({"error": "Sunucu hatasi", "details": str(e)}), 500
 
