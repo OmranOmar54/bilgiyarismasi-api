@@ -165,8 +165,6 @@ def get_leaderboard():
 
 @app.route('/check_username', methods=['POST'])
 def check_username():
-    
-
     try:
         data = request.get_json()
         username = data.get('username')
