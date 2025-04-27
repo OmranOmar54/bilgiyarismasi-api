@@ -7,27 +7,47 @@ from firebase_admin import firestore
 import datetime  # Zaman damgası eklemek için
 from flask_cors import CORS
 
-# --- Firebase Kurulumu ---
 try:
-    # Replit Secrets'tan JSON içeriğini al
-    firebase_secrets_json = os.environ['/etc/secrets/FIREBASE_CREDENTIALS.env']
+    # Render Secret File yolunu tanımla
+    secret_file_path = '/etc/secrets/FIREBASE_CREDENTIALS'
+
+    # Dosyanın varlığını kontrol et (isteğe bağlı ama iyi bir pratik)
+    if not os.path.exists(secret_file_path):
+        print(f"HATA: Secret dosyası bulunamadı: {secret_file_path}")
+        exit()
+
+    # Secret File içeriğini (JSON string) oku
+    with open(secret_file_path, 'r') as f:
+        firebase_secrets_json = f.read()
+
     # JSON içeriğini bir sözlüğe dönüştür
     firebase_credentials_dict = json.loads(firebase_secrets_json)
+
     # Credentials nesnesi oluştur
     cred = credentials.Certificate(firebase_credentials_dict)
+
     # Firebase Admin SDK'yı başlat
-    firebase_admin.initialize_app(cred)
+    if not firebase_admin._apps: # Zaten başlatılmadıysa başlat
+        firebase_admin.initialize_app(cred)
+    else:
+        # Alternatif: Zaten başlatıldıysa mevcut uygulamayı al
+        # firebase_admin.get_app()
+        print("Firebase zaten başlatılmış.")
+
+
     # Firestore istemcisini al
     db = firestore.client()
     print("Firebase başarıyla bağlandı.")
-except KeyError:
-    print(
-        "HATA: FIREBASE_CREDENTIALS secret'ı bulunamadı. Replit Secrets'ı kontrol edin."
-    )
-    exit()  # Secret yoksa uygulamayı durdur
+
+# except FileNotFoundError: # Daha spesifik hata yakalama
+#     print(f"HATA: Secret dosyası bulunamadı: {secret_file_path}")
+#     exit()
+except json.JSONDecodeError:
+    print(f"HATA: Secret dosyasının içeriği geçerli bir JSON değil: {secret_file_path}")
+    exit()
 except Exception as e:
     print(f"Firebase başlatılırken bir hata oluştu: {e}")
-    exit()  # Başka bir hata olursa durdur
+    exit() # Başka bir hata olursa durdur
 
 # --- Flask Web Sunucusu ---
 app = Flask(__name__)
