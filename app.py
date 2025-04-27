@@ -181,4 +181,3 @@ def check_username():
     except Exception as e:
         print(f"Kullanici adi sorgulanirken hata: {e}")
         return jsonify({"error": "Sunucu hatasi", "details": str(e)}), 500
-
