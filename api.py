@@ -143,10 +143,3 @@ def get_leaderboard():
     except Exception as e:
         print(f"Liderlik tablosu alınırken hata: {e}")
         return jsonify({"error": "Sunucu hatası", "details": str(e)}), 500
-
-
-# ... (if __name__ == '__main__': kısmı aynı kalacak)
-
-if __name__ == '__main__':
-    # Replit genellikle 8080 portunu kullanır ve dışarıya açar
-    app.run(host='0.0.0.0', port=8080)
