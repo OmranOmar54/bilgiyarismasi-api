@@ -176,7 +176,7 @@ def check_username():
         if doc.exists:
             return jsonify({'success': True, 'message': 'Kullanici Bulundu!', 'data':doc.to_dict()}), 200
         else:
-            return jsonify({'success': False, 'message': 'Kullanici Bulunamadı!'}), 404
+            return jsonify({'success': False, 'message': 'Kullanici Bulunamadi!'}), 404
    
     except Exception as e:
         print(f"Kullanici adi sorgulanirken hata: {e}")
