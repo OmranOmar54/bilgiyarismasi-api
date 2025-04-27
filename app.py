@@ -10,7 +10,7 @@ from flask_cors import CORS
 # --- Firebase Kurulumu ---
 try:
     # Replit Secrets'tan JSON içeriğini al
-    firebase_secrets_json = os.environ['FIREBASE_CREDENTIALS']
+    firebase_secrets_json = os.environ['/etc/secrets/FIREBASE_CREDENTIALS']
     # JSON içeriğini bir sözlüğe dönüştür
     firebase_credentials_dict = json.loads(firebase_secrets_json)
     # Credentials nesnesi oluştur
