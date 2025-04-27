@@ -75,12 +75,10 @@ def add_score():
 
         # Gerekli alanların varlığını kontrol et
         username = data.get('username')
-        password = data.get('password')
         ip_address = data.get('ip')
-        score = data.get(
-            'score')  # Skoru da ekledim, liderlik tablosu için gerekli
+        score = data.get('score')  # Skoru da ekledim, liderlik tablosu için gerekli
 
-        if not username or password or score is None:  # IP zorunlu olmayabilir, ama kullanıcı adı ve skor olmalı
+        if not username or score is None:  # IP zorunlu olmayabilir, ama kullanıcı adı ve skor olmalı
             return jsonify({
                 "error":
                 "Eksik veri: 'username' ve 'score' alanları gereklidir."
@@ -89,7 +87,6 @@ def add_score():
         # Firestore'a eklenecek veri
         user_data = {
             'username': username,
-            'password': password,
             'score':
             int(score
                 ),  # Skoru integer olarak kaydetmek sıralama için daha iyi
@@ -133,9 +130,8 @@ def get_leaderboard():
         leaderboard_ref = db.collection('leaderboard')
 
         # Skorları 'score' alanına göre azalan sırada sorgula (en yüksek üstte)
-        # limit(10) ile sadece ilk 10 skoru al (isteğe bağlı, sayıyı değiştirebilirsin)
-        query = leaderboard_ref.order_by('score',
-                                         direction=firestore.Query.DESCENDING)
+        
+        query = leaderboard_ref.order_by('score', direction=firestore.Query.DESCENDING)
 
         # Sorgu sonuçlarını al
         results = query.stream()  # veya query.get()
@@ -165,3 +161,18 @@ def get_leaderboard():
     except Exception as e:
         print(f"Liderlik tablosu alınırken hata: {e}")
         return jsonify({"error": "Sunucu hatası", "details": str(e)}), 500
+        
+
+@app.route('/check_username', methods=['POST'])
+def check_username():
+    username = request.args.get('username')
+
+    if not username:
+        return jsonify({'success': False, 'message': 'Kullanıcı adı boş olamaz!'}), 400
+
+    leaderboard_ref = db.collection('leaderboard').document(username)
+    doc = leaderboard_ref.get()
+    if doc.exist:
+        return jsonify({'success': True, 'message': 'Kullanıcı Bulundu!', 'data':doc.to_dict()}), 200
+    else:
+        return jsonify({'success': False, 'message': 'Kullanıcı Bulunamadı!'}), 404
