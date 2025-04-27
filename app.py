@@ -165,7 +165,8 @@ def get_leaderboard():
 
 @app.route('/check_username', methods=['POST'])
 def check_username():
-    username = request.args.get('username')
+    data = request.get_json()
+    username = data.get('username')
 
     if not username:
         return jsonify({'success': False, 'message': 'Kullanıcı adı boş olamaz!'}), 400
