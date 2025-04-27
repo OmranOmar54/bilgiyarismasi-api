@@ -165,15 +165,22 @@ def get_leaderboard():
 
 @app.route('/check_username', methods=['POST'])
 def check_username():
-    data = request.get_json()
-    username = data.get('username')
+    
 
-    if not username:
-        return jsonify({'success': False, 'message': 'Kullanıcı adı boş olamaz!'}), 400
+    try:
+        data = request.get_json()
+        username = data.get('username')
+        if not username:
+            return jsonify({'success': False, 'message': 'Kullanıcı adı boş olamaz!'}), 400
 
-    leaderboard_ref = db.collection('leaderboard').document(username)
-    doc = leaderboard_ref.get()
-    if doc.exist:
-        return jsonify({'success': True, 'message': 'Kullanıcı Bulundu!', 'data':doc.to_dict()}), 200
-    else:
-        return jsonify({'success': False, 'message': 'Kullanıcı Bulunamadı!'}), 404
+        leaderboard_ref = db.collection('leaderboard').document(username)
+        doc = leaderboard_ref.get()
+        if doc.exists:
+            return jsonify({'success': True, 'message': 'Kullanıcı Bulundu!', 'data':doc.to_dict()}), 200
+        else:
+            return jsonify({'success': False, 'message': 'Kullanıcı Bulunamadı!'}), 404
+   
+    except Exception as e:
+        print(f"Kullanıcı adı sorgulanırken hata: {e}")
+        return jsonify({"error": "Sunucu hatası", "details": str(e)}), 500
+
