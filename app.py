@@ -75,11 +75,12 @@ def add_score():
 
         # Gerekli alanların varlığını kontrol et
         username = data.get('username')
+        password = data.get('password')
         ip_address = data.get('ip')
         score = data.get(
             'score')  # Skoru da ekledim, liderlik tablosu için gerekli
 
-        if not username or score is None:  # IP zorunlu olmayabilir, ama kullanıcı adı ve skor olmalı
+        if not username or password or score is None:  # IP zorunlu olmayabilir, ama kullanıcı adı ve skor olmalı
             return jsonify({
                 "error":
                 "Eksik veri: 'username' ve 'score' alanları gereklidir."
@@ -88,6 +89,7 @@ def add_score():
         # Firestore'a eklenecek veri
         user_data = {
             'username': username,
+            'password': password,
             'score':
             int(score
                 ),  # Skoru integer olarak kaydetmek sıralama için daha iyi
