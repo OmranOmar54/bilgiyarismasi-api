@@ -200,3 +200,35 @@ def update_score():
     except Exception as e:
         print(f"Skor güncellenirken hata: {e}")
         return jsonify({"error": "Sunucu hatasi", "details": str(e)}),500
+
+@app.route('/get_rank', methods=['POST'])
+def get_rank():
+    try:
+        data = request.get_json()
+        username = data.get('username')
+
+        if not username:
+            return jsonify({'success': False, 'message': 'Kullanici adi gerekli!'}), 400
+
+        # Tüm kullanıcıları score'a göre DESC sırala
+        users_ref = db.collection('leaderboard').order_by('score', direction=firestore.Query.DESCENDING)
+        users = users_ref.stream()
+
+        rank = 1
+        found = False
+
+        for user in users:
+            user_data = user.to_dict()
+            if user.id == username:
+                found = True
+                break
+            rank += 1
+
+        if not found:
+            return jsonify({'success': False, 'message': 'Kullanici bulunamadi!'}), 404
+
+        return jsonify({'success': True, 'username': username, 'rank': rank}), 200
+
+    except Exception as e:
+        print(f"Rank bulunurken hata: {e}")
+        return jsonify({'success': False, 'error': 'Sunucu hatasi', 'details': str(e)}), 500
