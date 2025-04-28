@@ -181,3 +181,22 @@ def check_username():
     except Exception as e:
         print(f"Kullanici adi sorgulanirken hata: {e}")
         return jsonify({"error": "Sunucu hatasi", "details": str(e)}), 500
+    
+@app.route('/update_score', methods=['POST'])
+def update_score():
+    try:
+        data = request.get_json()
+        username = data.get('username')
+        score = data.get('score')
+        if not username or score is None:
+            return jsonify({'success': False, 'message': 'Puan veya kullanici adi boş olamaz!'}), 400
+        
+        leaderboard_ref = db.collection('leaderboard').document(username)
+        leaderboard_ref.set({'score': score}, merge=True)
+
+        return jsonify({'success': True, 'message': 'Skor güncellendi'}), 200
+
+
+    except Exception as e:
+        print(f"Skor güncellenirken hata: {e}")
+        return jsonify({"error": "Sunucu hatasi", "details": str(e)}),500
